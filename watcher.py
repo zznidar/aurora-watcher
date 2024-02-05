@@ -3,35 +3,47 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from io import BytesIO
 
-page = requests.get("https://visittavelsjo.se/auroracam/")
-
-# parse HTML page
-soup = BeautifulSoup(page.content, 'html.parser')
-
-# get elements by class name
-aji = soup.find_all('a', class_='html5galleryimglink')
-
-# newest picture link
-pic_url = aji[0].get('href')
-
-
-slika = requests.get(pic_url)
-
-im = Image.open(BytesIO(slika.content))
-#im.show()
-
-# open 24-02-04_21-13-03_0329.JPG
-#im = Image.open(r"img\24-02-04_21-13-03_0329.JPG")
-
-# get pixel data
-pix = im.load()
-sirina, visina = im.size # Get the width and hight of the image for iterating over
-
-
+# Constants: ratios and thresholds
 GRmin = 1.05
 GBmin = 1.05
 
 Gmin = 60
+
+BIG = 0.1
+SMALL = 0.005
+
+STRONG = 1.30
+MEDIUM = 1.15
+
+
+
+def getCurrentAuroraState():
+    page = requests.get("https://visittavelsjo.se/auroracam/")
+
+    # parse HTML page
+    soup = BeautifulSoup(page.content, 'html.parser')
+
+    # get elements by class name
+    aji = soup.find_all('a', class_='html5galleryimglink')
+
+    # newest picture link
+    pic_url = aji[0].get('href')
+
+
+    slika = requests.get(pic_url)
+
+    im = Image.open(BytesIO(slika.content))
+    #im.show()
+
+    # open 24-02-04_21-13-03_0329.JPG
+    #im = Image.open(r"img\24-02-04_21-13-03_0329.JPG")
+
+    # get pixel data
+    pix = im.load()
+    sirina, visina = im.size # Get the width and hight of the image for iterating over
+
+    out = analyse(pix, sirina, visina)
+    return(out)
 
 def analyse(pix, sirina, visina):
     totalPixels = 0
@@ -55,13 +67,6 @@ def analyse(pix, sirina, visina):
     out = calculateStrength(ratioAuroraPixels, ratioAuroraIntensities)
     out["auroraPixels"] = auroraPixels
     return(out)
-
-
-BIG = 0.1
-SMALL = 0.005
-
-STRONG = 1.30
-MEDIUM = 1.15
 
 def calculateStrength(ratioAuroraPixels, ratioAuroraIntensities):
 
@@ -94,5 +99,3 @@ def calculateStrength(ratioAuroraPixels, ratioAuroraIntensities):
     print(out)
     return(out)
 
-
-analyse(pix, sirina, visina)
