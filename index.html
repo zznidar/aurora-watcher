@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Žan Žnidar">
+    <title>Aurora watcher</title>
+    <meta name="description" content="Detects aurora on picture">
+
+</head>
+<body>
+    <div class="header">    
+        <h1>Aurora watcher</h1>
+        <p style="margin-top: 0;padding-bottom: 1rem;">Take a picture of your aurora, let me tell you if it's aurora!</p>
+    </div>
+
+    <label for="input">Pick your night sky pic: </label>
+    <input type="file" id="input" name="input" accept="image/*"/>
+    <br>
+    <canvas id="canvas" width="1080" height="1080" style="max-height: calc(100vh - 16px);max-width: calc(100vw - 16px);"></canvas>
+
+    <div>
+        <p id="outputText"></p>
+    </div>
+
+    
+
+    <footer style="color: gray; padding-bottom: 1.5rem;">
+        <p>Author: Žan&nbsp;Žnidar, ©&nbsp;2024<br>
+            Source code is available on <a href="https://github.com/zznidar/aurora-watcher">GitHub</a></p>
+    </footer>
+
+    <script src="index.js"></script>
+    <script>
+        var canvas = document.getElementById('canvas'),
+        context = canvas.getContext('2d');
+
+        // https://stackoverflow.com/a/6776055
+        var input = document.getElementById('input');
+        input.addEventListener('change', handleFiles);
+
+        function handleFiles(e) {
+
+
+                base_image = new Image();
+                base_image.src = URL.createObjectURL(e.target.files[0]);
+                base_image.onload = function(){
+                    URL.revokeObjectURL(base_image.src)
+
+                    // Always enable auto-detect when chaning pictures
+                    sizes = initialise(base_image);
+                    // Now we don't even need to call other functions as the change event will trigger the analysis.
+                    analyse();
+
+                    area.addEventListener("pointermove", handlePointerMove);
+            area.addEventListener("pointerup", handlePointerUp);
+
+                }
+        }
+
+    </script>
+
+    <script>        
+        const rgbToHex = (r, g, b, a) => {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        const hexToRgb = (hex) => {
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? 
+                [parseInt(result[1], 16),parseInt(result[2], 16), parseInt(result[3], 16), 255]
+             : null;
+        }
+
+
+
+                // Touch the colour
+
+                const area = document.getElementById("canvas");
+        let changingState = null;
+        let latestHex;
+
+            canvas.style.touchAction = "none";
+
+
+        function handlePointerMove(e) {
+            e.preventDefault();
+            var rect = e.target.getBoundingClientRect();
+            // https://stackoverflow.com/a/42111623
+            let x = e.clientX - rect.left; //x position within the element.
+            let y = e.clientY - rect.top;  //y position within the element.
+
+            actualX = Math.round(sizes.sirina/rect.width * x);
+            actualY = Math.round(sizes.visina/rect.height * y);
+            /*let c = document.getElementById("canvas");
+            let ctx = c.getContext("2d");
+            let p = ctx.getImageData(actualX, actualY, 1, 1).data;
+            */
+           let [r, g, b, a] = getArrPixelColour(actualX, actualY);
+            //let hex = rgbToHex(...p);
+            GR = g/r;
+            GB = g/b;
+            //document.getElementById("outputColours").innerHTML = hex;
+            latestHex = [GR, GB, r, g, b, actualX, actualY];
+        }
+
+        // We might need to get colours here: if pointer === tap, then it wasn't moved, so lastHex is empty or obsolete.
+        function handlePointerUp(e) {
+            canvas.style.removeProperty("touch-action");
+            changingState = null;
+            //area.removeEventListener("pointermove", handlePointerMove);
+            //area.removeEventListener("pointerup", handlePointerUp);
+            console.log(latestHex);
+        }
+
+
+
+
+    </script>
+</body>
+</html>
