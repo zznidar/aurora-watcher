@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 from PIL import Image
 from io import BytesIO
+import datetime
+
 
 # Constants: ratios and thresholds
 GRmin = 1.05
@@ -43,6 +45,21 @@ def getCurrentAuroraState():
     sirina, visina = im.size # Get the width and hight of the image for iterating over
 
     out = analyse(pix, sirina, visina)
+
+    # Get datetime from picture name
+    date = pic_url.split("/")[-1].split("_")[0]
+    time = pic_url.split("/")[-1].split("_")[1]
+    # Convert it to datetime object
+    currentDateTime = datetime.datetime.strptime(date + " " + time, '%y-%m-%d %H-%M-%S')
+    # add 3 min 30 sec
+    nextDateTime = currentDateTime + datetime.timedelta(minutes=(3 if currentDateTime.hour < 5 or currentDateTime.hour > 20 else 20), seconds=30)
+    # Convert to ISO
+    nextDateTimeISO = nextDateTime.isoformat()
+
+    toSleep = max((nextDateTime - datetime.datetime.now()).total_seconds(), 3.3*60)
+    out["nextDateTime"] = nextDateTime
+    out["nextDateTimeISO"] = nextDateTimeISO
+    out["toSleep"] = toSleep
     return(out)
 
 def analyse(pix, sirina, visina):
