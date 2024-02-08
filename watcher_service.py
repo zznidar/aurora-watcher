@@ -21,16 +21,17 @@ STRONG = 1.30
 MEDIUM = 1.15
 
 
+unitsOfMeasurement = {
+    "size": "%",
+    "strength": "%",
+    "auroraPixels": "px"
+}
+icon_yes = "mdi:aurora"
+icon_no = "mdi:string-lights-off"
 
-#@service
 
 @time_trigger("period(now, 4min)")
 def getCurrentAuroraState():
-    attributes = {}
-    attributes["icon"] = "mdi:square"
-    attributes["attribution"] = "zznidar"
-    attributes["unit_of_measurement"] = "%"
-
     ## First check if enough time has passed since previous run (at least 4 minutes)
     try:
         nextDateTimeIso = state.get("sensor.zzauroranextdatetimeiso")
@@ -85,23 +86,21 @@ def getCurrentAuroraState():
 
     toSleep = max((nextDateTime - datetime.datetime.now()).total_seconds(), 3.3*60)
     out["nextDateTimeISO"] = nextDateTimeISO
-    out["toSleep"] = toSleep
+    #out["toSleep"] = toSleep
 
     log.info(out)
 
-    #log.info("Ničesar ne bomo returnali.")
-    #napaka = slika.content()
-    #return True
-    #return("Tole je test")
+    # For each key, value in out, set the state and attributes
+    for key, value in out.items():
+        attributes = {}
+        attributes["icon"] = icon_no
 
-    # 'sizeType': 'none', 'strengthType': 'none', 'size': 0, 'strength': 0, 'auroraPixels': 0
-    state.set("sensor.zzaurorasizetype", out["sizeType"], attributes)
-    state.set("sensor.zzaurorastrengthtype", out["strengthType"], attributes)
-    state.set("sensor.zzaurorasize", out["size"], attributes)
-    state.set("sensor.zzaurorastrength", out["strength"], attributes)
-    state.set("sensor.zzaurorapixels", out["auroraPixels"], attributes)
-    state.set("sensor.zzauroranextdatetimeiso", out["nextDateTimeISO"], attributes)
-    state.set("sensor.zzauroratosleep", out["toSleep"], attributes)
+        if key in unitsOfMeasurement:
+            attributes["unit_of_measurement"] = unitsOfMeasurement[key]
+        if value in ["big", "strong"] or (not isinstance(value, str) and value > 60):
+            attributes["icon"] = icon_yes
+        state.set(f"sensor.zzaurora{key.lower()}", value, attributes)
+
 
     return(json.dumps(out))
 
