@@ -63,6 +63,18 @@ def getCurrentAuroraState():
     # newest picture link
     pic_url = aji[0].get('href')
 
+    # Check that the picture is not the same as the previous one
+    try:
+        lastPicUrl = state.get("sensor.zzauroralastpicurl")
+    except:
+        lastPicUrl = "https://visittavelsjo.se/auroracam/24-02-04_21-13-03_0329.JPG"
+    if(lastPicUrl == pic_url):
+        log.info("Same picture as last time, skipping")
+        return
+    
+    log.info(f"New picture: {pic_url} is not the same as {lastPicUrl}")
+    
+
     async_result2 = await hass.async_add_executor_job(requests.get, pic_url) # tuple of args for foo
     slika = async_result2.content
 
@@ -101,7 +113,7 @@ def getCurrentAuroraState():
             attributes["icon"] = icon_yes
         state.set(f"sensor.zzaurora{key.lower()}", value, attributes)
 
-
+    state.set("sensor.zzauroralastpicurl", pic_url)
     return(json.dumps(out))
 
 import asyncio
