@@ -133,7 +133,7 @@ def analyse(pix, sirina, visina):
         asyncio.sleep(0)
 
     ratioAuroraPixels = auroraPixels/totalPixels
-    ratioAuroraIntensities = (auroraIntensities/auroraPixels) if auroraPixels > 0 else 0
+    ratioAuroraIntensities = (auroraIntensities/auroraPixels) if ratioAuroraPixels > (SMALL*0.8) else 0
     ratioAuroraIntensitiesTotal = auroraIntensities/totalPixels
 
     print("Aurora pixels", auroraPixels, "Total pixels", totalPixels, "Ratio aurora/total", ratioAuroraPixels, "Ratio aurora intensities", ratioAuroraIntensities, "Ratio aurora intensities total", ratioAuroraIntensitiesTotal)
@@ -154,7 +154,7 @@ def calculateStrength(ratioAuroraPixels, ratioAuroraIntensities):
     if(ratioAuroraPixels < SMALL):
         out["sizeType"] = "none"
         print("No aurora")
-        return(out)
+        #We still want to show numbers, sometimes it might be small strong #return(out)
     elif(ratioAuroraPixels < 2*SMALL):
         out["sizeType"] = "small"
     else:

@@ -19,23 +19,27 @@ MEDIUM = 1.15
 
 
 
-def getCurrentAuroraState():
-    page = requests.get("https://visittavelsjo.se/auroracam/")
+def getCurrentAuroraState(local = False):
 
-    # parse HTML page
-    soup = BeautifulSoup(page.content, 'html.parser')
+    if local != False:
+        im = Image.open(local)
+    else:
+        page = requests.get("https://visittavelsjo.se/auroracam/")
 
-    # get elements by class name
-    aji = soup.find_all('a', class_='html5galleryimglink')
+        # parse HTML page
+        soup = BeautifulSoup(page.content, 'html.parser')
 
-    # newest picture link
-    pic_url = aji[0].get('href')
+        # get elements by class name
+        aji = soup.find_all('a', class_='html5galleryimglink')
+
+        # newest picture link
+        pic_url = aji[0].get('href')
 
 
-    slika = requests.get(pic_url)
+        slika = requests.get(pic_url)
 
-    im = Image.open(BytesIO(slika.content))
-    #im.show()
+        im = Image.open(BytesIO(slika.content))
+        #im.show()
 
     # open 24-02-04_21-13-03_0329.JPG
     #im = Image.open(r"img\24-02-04_21-13-03_0329.JPG")
@@ -76,7 +80,7 @@ def analyse(pix, sirina, visina):
                 auroraIntensities += (g/(r or 1) + g/(b or 1))/2
             totalPixels += 1
     ratioAuroraPixels = auroraPixels/totalPixels
-    ratioAuroraIntensities = (auroraIntensities/auroraPixels) if auroraPixels > 0 else 0
+    ratioAuroraIntensities = (auroraIntensities/auroraPixels) if ratioAuroraPixels > (SMALL*0.8) else 0
     ratioAuroraIntensitiesTotal = auroraIntensities/totalPixels
 
     print("Aurora pixels", auroraPixels, "Total pixels", totalPixels, "Ratio aurora/total", ratioAuroraPixels, "Ratio aurora intensities", ratioAuroraIntensities, "Ratio aurora intensities total", ratioAuroraIntensitiesTotal)
@@ -97,7 +101,7 @@ def calculateStrength(ratioAuroraPixels, ratioAuroraIntensities):
     if(ratioAuroraPixels < SMALL):
         out["sizeType"] = "none"
         print("No aurora")
-        return(out)
+        #return(out)
     elif(ratioAuroraPixels < 2*SMALL):
         out["sizeType"] = "small"
     else:
