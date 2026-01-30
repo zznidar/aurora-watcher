@@ -24,17 +24,16 @@ def getCurrentAuroraState(local = False):
     if local != False:
         im = Image.open(local)
     else:
-        page = requests.get("https://visittavelsjo.se/auroracam/")
+        page = requests.get("https://lyckebosommargard.se/auroracam/")
 
         # parse HTML page
         soup = BeautifulSoup(page.content, 'html.parser')
 
         # get elements by class name
-        aji = soup.find_all('a', class_='html5galleryimglink')
+        imgji = soup.select(".items img")
 
         # newest picture link
-        pic_url = aji[0].get('href')
-
+        pic_url = imgji[0].get("src")
 
         slika = requests.get(pic_url)
 
@@ -80,7 +79,7 @@ def analyse(pix, sirina, visina):
                 auroraIntensities += (g/(r or 1) + g/(b or 1))/2
             totalPixels += 1
     ratioAuroraPixels = auroraPixels/totalPixels
-    ratioAuroraIntensities = (auroraIntensities/auroraPixels) if ratioAuroraPixels > (SMALL*0.8) else 0
+    ratioAuroraIntensities = (auroraIntensities/auroraPixels) if ratioAuroraPixels > 0 else 0
     ratioAuroraIntensitiesTotal = auroraIntensities/totalPixels
 
     print("Aurora pixels", auroraPixels, "Total pixels", totalPixels, "Ratio aurora/total", ratioAuroraPixels, "Ratio aurora intensities", ratioAuroraIntensities, "Ratio aurora intensities total", ratioAuroraIntensitiesTotal)
@@ -120,3 +119,8 @@ def calculateStrength(ratioAuroraPixels, ratioAuroraIntensities):
     print(out)
     return(out)
 
+## Write your own logic for running this in a loop
+## and for notifications if you are using this
+## standalone script.
+
+## To use it within HomeAssistant, see watcher_service.py and README.md (https://github.com/zznidar/aurora-watcher?tab=readme-ov-file#setting-up-on-home-assistant) for installation instructions.

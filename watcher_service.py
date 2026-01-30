@@ -47,7 +47,7 @@ def getCurrentAuroraState():
         return
 
 
-    async_result = await hass.async_add_executor_job(requests.get, "https://visittavelsjo.se/auroracam/") # tuple of args for foo
+    async_result = await hass.async_add_executor_job(requests.get, "https://lyckebosommargard.se/auroracam/") # tuple of args for foo
 
     # do some other stuff in the main process
 
@@ -57,17 +57,15 @@ def getCurrentAuroraState():
     # parse HTML page
     soup = BeautifulSoup(page, 'html.parser')
 
-    # get elements by class name
-    aji = soup.find_all('a', class_='html5galleryimglink')
-
-    # newest picture link
-    pic_url = aji[0].get('href')
+    imgji = soup.select(".items img")
+    
+    pic_url = imgji[0].get("src")
 
     # Check that the picture is not the same as the previous one
     try:
         lastPicUrl = state.get("sensor.zzauroralastpicurl")
     except:
-        lastPicUrl = "https://visittavelsjo.se/auroracam/24-02-04_21-13-03_0329.JPG"
+        lastPicUrl = "https://lyckebosommargard.se/wp-content/uploads/Webcam//26-01-30_14-40-42_9999.JPG"
     if(lastPicUrl == pic_url):
         log.info("Same picture as last time, skipping")
         return
