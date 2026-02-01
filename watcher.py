@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from io import BytesIO
 import datetime
+import numpy as np
 
 
 # Constants: ratios and thresholds
@@ -23,6 +24,7 @@ def getCurrentAuroraState(local = False):
 
     if local != False:
         im = Image.open(local)
+        pic_url = local
     else:
         page = requests.get("https://lyckebosommargard.se/auroracam/")
 
@@ -43,11 +45,10 @@ def getCurrentAuroraState(local = False):
     # open 24-02-04_21-13-03_0329.JPG
     #im = Image.open(r"img\24-02-04_21-13-03_0329.JPG")
 
-    # get pixel data
-    pix = im.load()
-    sirina, visina = im.size # Get the width and hight of the image for iterating over
+    # Convert image to numpy array
+    img_array = np.array(im)
 
-    out = analyse(pix, sirina, visina)
+    out = analyse(img_array)
 
     # Get datetime from picture name
     date = pic_url.split("/")[-1].split("_")[0]
@@ -65,19 +66,32 @@ def getCurrentAuroraState(local = False):
     out["toSleep"] = toSleep
     return(out)
 
-def analyse(pix, sirina, visina):
-    totalPixels = 0
-    auroraPixels = 0
-    auroraIntensities = 0
+def analyse(img_array):
+    # Get image dimensions and crop to top 5/8 of the image
+    visina, sirina = img_array.shape[:2]
+    img_cropped = img_array[:visina * 5 // 8, :, :]
+    
+    # Extract RGB channels
+    r = img_cropped[:, :, 0].astype(float)
+    g = img_cropped[:, :, 1].astype(float)
+    b = img_cropped[:, :, 2].astype(float)
+    
+    # Avoid division by zero
+    r_safe = np.where(r == 0, 1, r)
+    b_safe = np.where(b == 0, 1, b)
+    
+    # Calculate ratios
+    g_r_ratio = g / r_safe
+    g_b_ratio = g / b_safe
+    
+    # Create mask for aurora pixels
+    aurora_mask = (g_r_ratio > GRmin) & (g_b_ratio > GBmin) & (g > Gmin)
+    
+    # Count aurora pixels and calculate intensities
+    auroraPixels = np.sum(aurora_mask).item()
+    auroraIntensities = np.sum((g_r_ratio + g_b_ratio) / 2 * aurora_mask).item()
+    totalPixels = img_cropped.shape[0] * img_cropped.shape[1]
 
-    for x in range(sirina):
-        for y in range(visina * 5 // 8):
-            r, g, b = pix[x, y]
-            if(GRmin < g/(r or 1) and GBmin < g/(b or 1) and g > Gmin):
-                # Aurora pixel
-                auroraPixels += 1
-                auroraIntensities += (g/(r or 1) + g/(b or 1))/2
-            totalPixels += 1
     ratioAuroraPixels = auroraPixels/totalPixels
     ratioAuroraIntensities = (auroraIntensities/auroraPixels) if ratioAuroraPixels > 0 else 0
     ratioAuroraIntensitiesTotal = auroraIntensities/totalPixels
