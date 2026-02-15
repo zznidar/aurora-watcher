@@ -1,3 +1,8 @@
+## New version as of 2026-02-15
+## Make sure you create sensors in template.yaml
+## and restart all YAML config
+## before you create this file!!!
+
 import requests
 from bs4 import BeautifulSoup
 from PIL import Image
@@ -23,9 +28,9 @@ MEDIUM = 1.15
 
 
 unitsOfMeasurement = {
-    "size": "%",
-    "strength": "%",
-    "auroraPixels": "px"
+    "size3": "%",
+    "strength3": "%",
+    "auroraPixels3": "px"
 }
 icon_yes = "mdi:aurora"
 icon_no = "mdi:string-lights-off"
@@ -35,7 +40,7 @@ icon_no = "mdi:string-lights-off"
 def getCurrentAuroraState():
     ## First check if enough time has passed since previous run (at least 4 minutes)
     try:
-        nextDateTimeIso = state.get("sensor.zzauroranextdatetimeiso")
+        nextDateTimeIso = state.get("sensor.zzauroranextdatetimeiso3")
     except:
         nextDateTimeIso = "2024-02-06T20:11:58"
     log.info(nextDateTimeIso)
@@ -64,7 +69,7 @@ def getCurrentAuroraState():
 
     # Check that the picture is not the same as the previous one
     try:
-        lastPicUrl = state.get("sensor.zzauroralastpicurl")
+        lastPicUrl = state.get("sensor.zzauroralastpicurl3")
     except:
         lastPicUrl = "https://lyckebosommargard.se/wp-content/uploads/Webcam//26-01-30_14-40-42_9999.JPG"
     if(lastPicUrl == pic_url):
@@ -95,7 +100,7 @@ def getCurrentAuroraState():
     nextDateTimeISO = nextDateTime.isoformat()
 
     toSleep = max((nextDateTime - datetime.datetime.now()).total_seconds(), 3.3*60)
-    out["nextDateTimeISO"] = nextDateTimeISO
+    out["nextDateTimeISO3"] = nextDateTimeISO
     #out["toSleep"] = toSleep
 
     log.info(out)
@@ -109,9 +114,10 @@ def getCurrentAuroraState():
             attributes["unit_of_measurement"] = unitsOfMeasurement[key]
         if value in ["big", "strong"] or (not isinstance(value, str) and value > 60):
             attributes["icon"] = icon_yes
+        attributes["unique_id"] = f"sensor.zzaurora{key.lower()}"
         state.set(f"sensor.zzaurora{key.lower()}", value, attributes)
 
-    state.set("sensor.zzauroralastpicurl", pic_url)
+    state.set("sensor.zzauroralastpicurl3", pic_url, {"unique_id": "sensor.zzauroralastpicurl3"})
     return(json.dumps(out))
 
 def analyse(img_array):
@@ -151,36 +157,36 @@ def analyse(img_array):
     print("Aurora pixels", auroraPixels, "Total pixels", totalPixels, "Ratio aurora/total", ratioAuroraPixels, "Ratio aurora intensities", ratioAuroraIntensities, "Ratio aurora intensities total", ratioAuroraIntensitiesTotal)
 
     out = calculateStrength(ratioAuroraPixels, ratioAuroraIntensities)
-    out["auroraPixels"] = auroraPixels
+    out["auroraPixels3"] = auroraPixels
     return(out)
 
 def calculateStrength(ratioAuroraPixels, ratioAuroraIntensities):
 
     out = {
-        "sizeType": "none",
-        "strengthType": "none",
-        "size": 0,
-        "strength": 0
+        "sizeType3": "none",
+        "strengthType3": "none",
+        "size3": 0,
+        "strength3": 0
     }
 
     if(ratioAuroraPixels < SMALL):
-        out["sizeType"] = "none"
+        out["sizeType3"] = "none"
         print("No aurora")
         return(out)
     elif(ratioAuroraPixels < 2*SMALL):
-        out["sizeType"] = "small"
+        out["sizeType3"] = "small"
     else:
-        out["sizeType"] = "big"
+        out["sizeType3"] = "big"
 
-    out["size"] = round((ratioAuroraPixels/(BIG)*100), 2) # in percent
+    out["size3"] = round((ratioAuroraPixels/(BIG)*100), 2) # in percent
 
 
     if(ratioAuroraIntensities < MEDIUM):
-        out["strengthType"] = "weak"
+        out["strengthType3"] = "weak"
     else:
-        out["strengthType"] = "strong"
+        out["strengthType3"] = "strong"
     
-    out["strength"] = round((ratioAuroraIntensities/(STRONG)*100), 2) # in percent
+    out["strength3"] = round((ratioAuroraIntensities/(STRONG)*100), 2) # in percent
 
     print(out)
     return(out)

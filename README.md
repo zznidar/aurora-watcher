@@ -1,6 +1,11 @@
 # aurora-watcher
 Watches livecam photos and notifies when aurora is visible
 
+## How it works
+This script regularly checks the newest photo above the Tavelsjö lake, then runs a simple analysis to detect aurora. Particularly, it compares the RGB-ratios of each pixel, as is a common approach in biochemical analises. 
+
+It was tuned specifically for this camera at this location. Therefore, only the upper 5/8 of the picture is analysed (rest is the window frame/not sky and is discarded). The ratio thresholds were set by manually analysing a handful of photos with and without the northern lights. 
+
 
 ## Setting up on Home Assistant
 ### Installing plugins
@@ -17,13 +22,35 @@ Devices & services -> in the top-right corner area, Show 5 disabled integrations
 * [Apprise](https://www.home-assistant.io/integrations/apprise/). This is needed to send you notifications when aurora is detected.
     1. Not sure, consult thier documentation. Maybe it is already preinstalled – in that case, you just need to add a few lines to the configuration.yaml file.
 
-
-### Setting up Aurora Detector
+### Setting up "sensors"
+**This must be done _before_ you run (upload/save) the watcher_service.py!!!**
 1. Open `Studio Code Server` inside your HomeAssistant
     * If you don't see any of the aftermentioned files, go to Hamburger Menu -> File -> Open **Folder**... -> `~/config`
-2. Add the file `watcher_service.py` and rename it to `watcher.py` into the `/root/config/pyscript` folder
+2. Open the `templates.yaml` file. If it doesn't exist, create it and add a reference to it to the `configuration.yaml` file 
+    ```yaml
+    template: !include templates.yaml
+    ```
+3. Add the following sensors to the templates.yaml. Ignore "Entity does not exist" warnings.
+    * (see add_to_templates.yaml)
+4. Save the yaml file.
+5. Go to Settings -> Developer tools -> All YAML configuration to reload it.
+6. Go to Settings -> Devices & services -> Entities and **make sure all the new sensors are visible!**
+    * If you don't see them, ensure you don't have any filters turned on
+    * If you still don't see them, check the logs (Settings -> System -> Logs -> three dots -> Show all logs).
+        * You should see something like this for each sensor:
+            ```log
+            2026-02-15 17:32:57.822 INFO (MainThread) [homeassistant.helpers.entity_registry] Registered new sensor.template entity: sensor.zzaurorastrengthtype3
+            ```
+7. You can now also add these sensors to an area. This will allow you to see their values in your home page (since Feb 2026, only sensors belonging to an area are visible on your Home Assistant home page). Click on a sensor -> Settings -> Area (create a new one if needed)
+8. Now you're ready to add the watcher script.
+
+### Setting up Aurora Detector
+0. Make sure you succeeded setting up the sensors!
+    * Otherwise, you will get duplicated sensor entities and referencing them will become a headache.
+1. Open `Studio Code Server` inside your HomeAssistant
+2. Add the file `watcher_service.py` to the `/root/config/pyscript` folder
 3. Restart Home Assistant (Developer tools -> Check configuration, then (if everything is ok) -> Restart). Make sure the Python script starts running and that it runs at least once successfully.
-    * This will create new sensors for you, particularly the `sensor.zzaurorastrength`
+    * This will update the sensors you've set up in the previous section, particularly the `sensor.zzaurorastrength3`
     * You can find logs in Settings -> System -> Logs -> three dots -> Show all logs
         * You should see something like 
             ```log
@@ -31,7 +58,7 @@ Devices & services -> in the top-right corner area, Show 5 disabled integrations
             2026-01-30 19:34:37.159 INFO (MainThread) [custom_components.pyscript.file.watcher.getCurrentAuroraState] b'<!DOCTYPE html>\r\n<html lang="e'
             2026-01-30 19:34:37.166 INFO (MainThread) [custom_components.pyscript.file.watcher.getCurrentAuroraState] New picture: https://[...]/wp-content/uploads/Webcam//26-01-30_19-32-29_9999.JPG is not the same as https://[...]/wp-content/uploads/Webcam//26-01-30_14-40-42_9999.JPG
             ```
-        * Around a minute later, you should get a result:
+        * A few seconds later, you should get a result:
             ```log
             2026-01-30 19:35:55.597 INFO (MainThread) [custom_components.pyscript.file.watcher.getCurrentAuroraState] {'sizeType': 'none', 'strengthType': 'none', 'size': 0, 'strength': 0, 'auroraPixels': 19, 'nextDateTimeISO': '2026-01-30T19:52:59'}
             ```
@@ -47,12 +74,12 @@ Notifications can be set up as Apprise, for example:
         url: mailto://senderMailUsername:password@gmail.com?to="recipientEmail%2BAurora80@gmail.com,yourFriend@email.something"
     ```
 2. Reload (Developer tools -> All YAML configuration)
-3. Setttings -> Automations & Scenes -> Create automation -> When `sensor.zzaurorastrength` is above 80, Then do Notifications (e. g. send a push notification to your phone, send an e-mail ...). If you also want a link to the latest livecam picture, use this as the message:
+3. Setttings -> Automations & Scenes -> Create automation -> When `sensor.zzaurorastrength3` is above 80, Then do Notifications (e. g. send a push notification to your phone, send an e-mail ...). If you also want a link to the latest livecam picture, use this as the message:
     ```yaml
     Aurora intensity is over 80 %   <br>  
-    Current view: <a href="{{ states('sensor.zzauroralastpicurl') }}">{{ states('sensor.zzauroralastpicurl') }}</a>
+    Current view: <a href="{{ states('sensor.zzauroralastpicurl3') }}">{{ states('sensor.zzauroralastpicurl3') }}</a>
     ```
-    * To also be notified when the northern lights start building up, create another automation with the Trigger `sensor.zzaurorastrengthtype` changes to `weak`. This will allow you to catch the aurora if it is more short-lived.
+    * To also be notified when the northern lights start building up, create another automation with the Trigger `sensor.zzaurorastrengthtype3` changes to `weak`. This will allow you to catch the aurora if it is more short-lived.
 
 
 

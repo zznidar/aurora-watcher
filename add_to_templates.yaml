@@ -1,0 +1,47 @@
+## Add the contents of this file to templates.yaml
+
+## ZZaurora_2026-02-15
+- sensor:
+    - unit_of_measurement: px
+      default_entity_id: sensor.zzauroraaurorapixels3
+      unique_id: "sensor.zzauroraaurorapixels3"
+      name: "zzauroraaurorapixels3"
+      state: "0"
+
+- sensor:
+    - default_entity_id: sensor.zzauroralastpicurl3
+      unique_id: "sensor.zzauroralastpicurl3"
+      name: "zzauroralastpicurl3"
+      state: ""
+
+- sensor:
+    - default_entity_id: sensor.zzauroranextdatetimeiso3
+      unique_id: "sensor.zzauroranextdatetimeiso3"
+      name: "zzauroranextdatetimeiso3"
+      state: "2026-02-15T17:48:55"
+
+- sensor:
+    - unit_of_measurement: "%"
+      default_entity_id: sensor.zzaurorasize3
+      unique_id: "sensor.zzaurorasize3"
+      name: "zzaurorasize3"
+      state: "0"
+
+- sensor:
+    - default_entity_id: sensor.zzaurorasizetype3
+      unique_id: "sensor.zzaurorasizetype3"
+      name: "zzaurorasizetype3"
+      state: ""
+
+- sensor:
+    - unit_of_measurement: "%"
+      default_entity_id: sensor.zzaurorastrength3
+      unique_id: "sensor.zzaurorastrength3"
+      name: "zzaurorastrength3"
+      state: "0"
+
+- sensor:
+    - default_entity_id: sensor.zzaurorastrengthtype3
+      unique_id: "sensor.zzaurorastrengthtype3"
+      name: "zzaurorastrengthtype3"
+      state: ""
