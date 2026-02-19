@@ -1,4 +1,4 @@
-## New version as of 2026-02-15
+## New version as of 2026-02-18
 ## Make sure you create sensors in template.yaml
 ## and restart all YAML config
 ## before you create this file!!!
@@ -12,19 +12,7 @@ import json
 import pyscript
 import datetime
 import numpy as np
-
-
-# Constants: ratios and thresholds
-GRmin = 1.05
-GBmin = 1.05
-
-Gmin = 60
-
-BIG = 0.1
-SMALL = 0.005
-
-STRONG = 1.30
-MEDIUM = 1.15
+import auroraanalyse
 
 
 unitsOfMeasurement = {
@@ -87,7 +75,7 @@ def getCurrentAuroraState():
     # Convert image to numpy array
     img_array = np.array(im)
 
-    out = analyse(img_array)
+    out = await auroraanalyse.analyse(img_array)
 
     # Get datetime from picture name
     date = pic_url.split("/")[-1].split("_")[0]
@@ -120,76 +108,6 @@ def getCurrentAuroraState():
     state.set("sensor.zzauroralastpicurl3", pic_url, {"unique_id": "sensor.zzauroralastpicurl3"})
     return(json.dumps(out))
 
-def analyse(img_array):
-    # Get image dimensions and crop to top 5/8 of the image
-    visina, sirina = img_array.shape[:2]
-    #img_cropped = img_array[:visina * 5 // 8, :, :]
-    img_cropped = img_array[:visina * 5 // 8]
-
-    # Transpose img_cropped in such a way that the r value becomes the first axis
-    img_cropped = np.transpose(img_cropped, (2, 0, 1))
-    
-    # Extract RGB channels
-    r = img_cropped[0].astype(float)
-    g = img_cropped[1].astype(float)
-    b = img_cropped[2].astype(float)
-    
-    # Avoid division by zero
-    r_safe = np.where(np.equal(r, 0), 1, r)
-    b_safe = np.where(np.equal(b, 0), 1, b)
-    
-    # Calculate ratios
-    g_r_ratio = g / r_safe
-    g_b_ratio = g / b_safe
-    
-    # Create mask for aurora pixels
-    aurora_mask = np.logical_and(np.greater(g_r_ratio, GRmin), np.logical_and(np.greater(g_b_ratio, GBmin), np.greater(g, Gmin)))
-    
-    # Count aurora pixels and calculate intensities
-    auroraPixels = np.sum(aurora_mask).item()
-    auroraIntensities = np.sum((g_r_ratio + g_b_ratio) / 2 * aurora_mask).item()
-    totalPixels = img_cropped.shape[1] * img_cropped.shape[2] # because it is now transposed
-
-    ratioAuroraPixels = auroraPixels/totalPixels
-    ratioAuroraIntensities = (auroraIntensities/auroraPixels) if auroraPixels > 0 else 0
-    ratioAuroraIntensitiesTotal = auroraIntensities/totalPixels
-
-    print("Aurora pixels", auroraPixels, "Total pixels", totalPixels, "Ratio aurora/total", ratioAuroraPixels, "Ratio aurora intensities", ratioAuroraIntensities, "Ratio aurora intensities total", ratioAuroraIntensitiesTotal)
-
-    out = calculateStrength(ratioAuroraPixels, ratioAuroraIntensities)
-    out["auroraPixels3"] = auroraPixels
-    return(out)
-
-def calculateStrength(ratioAuroraPixels, ratioAuroraIntensities):
-
-    out = {
-        "sizeType3": "none",
-        "strengthType3": "none",
-        "size3": 0,
-        "strength3": 0
-    }
-
-    if(ratioAuroraPixels < SMALL):
-        out["sizeType3"] = "none"
-        print("No aurora")
-        return(out)
-    elif(ratioAuroraPixels < 2*SMALL):
-        out["sizeType3"] = "small"
-    else:
-        out["sizeType3"] = "big"
-
-    out["size3"] = round((ratioAuroraPixels/(BIG)*100), 2) # in percent
-
-
-    if(ratioAuroraIntensities < MEDIUM):
-        out["strengthType3"] = "weak"
-    else:
-        out["strengthType3"] = "strong"
-    
-    out["strength3"] = round((ratioAuroraIntensities/(STRONG)*100), 2) # in percent
-
-    print(out)
-    return(out)
 
 if __name__ == "__main__":
     print(getCurrentAuroraState())

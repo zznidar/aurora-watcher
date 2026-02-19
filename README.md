@@ -2,7 +2,7 @@
 Watches livecam photos and notifies when aurora is visible
 
 ## How it works
-This script regularly checks the newest photo above the Tavelsjö lake, then runs a simple analysis to detect aurora. Particularly, it compares the RGB-ratios of each pixel, as is a common approach in biochemical analises. 
+This script regularly checks the newest photo above the Tavelsjö lake, then runs a simple analysis to detect aurora. Particularly, it compares the RGB-ratios of each pixel, as is a common approach in biochemical analyses. 
 
 It was tuned specifically for this camera at this location. Therefore, only the upper 5/8 of the picture is analysed (rest is the window frame/not sky and is discarded). The ratio thresholds were set by manually analysing a handful of photos with and without the northern lights. 
 
@@ -48,7 +48,7 @@ Devices & services -> in the top-right corner area, Show 5 disabled integrations
 0. Make sure you succeeded setting up the sensors!
     * Otherwise, you will get duplicated sensor entities and referencing them will become a headache.
 1. Open `Studio Code Server` inside your HomeAssistant
-2. Add the file `watcher_service.py` to the `/root/config/pyscript` folder
+2. Add the file `watcher_service.py` to the `/root/config/pyscript` folder. Add the file `modules/auroraanalyse.py` to the `/root/config/pyscript/modules/` subfolder.
 3. Restart Home Assistant (Developer tools -> Check configuration, then (if everything is ok) -> Restart). Make sure the Python script starts running and that it runs at least once successfully.
     * This will update the sensors you've set up in the previous section, particularly the `sensor.zzaurorastrength3`
     * You can find logs in Settings -> System -> Logs -> three dots -> Show all logs
