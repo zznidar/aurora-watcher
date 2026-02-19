@@ -31,7 +31,7 @@ Devices & services -> in the top-right corner area, Show 5 disabled integrations
     template: !include templates.yaml
     ```
 3. Add the following sensors to the templates.yaml. Ignore "Entity does not exist" warnings.
-    * (see add_to_templates.yaml)
+    * (see [add_to_templates.yaml](https://github.com/zznidar/aurora-watcher/blob/main/add_to_templates.yaml))
 4. Save the yaml file.
 5. Go to Settings -> Developer tools -> All YAML configuration to reload it.
 6. Go to Settings -> Devices & services -> Entities and **make sure all the new sensors are visible!**
