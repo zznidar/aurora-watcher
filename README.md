@@ -71,10 +71,11 @@ Notifications can be set up as Apprise, for example:
     notify:
     - name: ZZ_Aurora_notifier
         platform: apprise
-        url: mailto://senderMailUsername:password@gmail.com?to="recipientEmail%2BAurora80@gmail.com,yourFriend@email.something"
+        url: mailtos://senderMailUsername:password@gmail.com?to="recipientEmail%2BAurora80@gmail.com,yourFriend@email.something"
     ```
 2. Reload (Developer tools -> All YAML configuration)
-3. Setttings -> Automations & Scenes -> Create automation -> When `sensor.zzaurorastrength3` is above 80, Then do Notifications (e. g. send a push notification to your phone, send an e-mail ...). If you also want a link to the latest livecam picture, use this as the message:
+    * If e-mail notifications don't work after this, you may need to restart the whole Home Assistant.
+3. Settings -> Automations & Scenes -> Create automation -> When `sensor.zzaurorastrength3` is above 80, Then do Notifications (e. g. send a push notification to your phone, send an e-mail ...). If you also want a link to the latest livecam picture, use this as the message:
     ```yaml
     Aurora intensity is over 80 %   <br>  
     Current view: <a href="{{ states('sensor.zzauroralastpicurl3') }}">{{ states('sensor.zzauroralastpicurl3') }}</a>
