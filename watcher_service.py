@@ -51,7 +51,7 @@ def getCurrentAuroraState():
     # parse HTML page
     soup = BeautifulSoup(page, 'html.parser')
 
-    imgji = soup.select(".items img")
+    imgji = soup.select(".items img:not([src='https://lyckebosommargard.se/wp-content/uploads/Webcam//latest.php'])")
     
     pic_url = imgji[0].get("src")
 
