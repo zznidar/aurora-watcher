@@ -35,7 +35,7 @@ function initialise(slika) {
     return({"visina": visina, "sirina": sirina, "resized": sirina != slikaWidth})
 }
 
-unitsOfMeasurement = {
+const unitsOfMeasurement = {
     "size3": "%",
     "strength3": "%",
     "auroraPixels3": "px"
@@ -49,20 +49,20 @@ GBmax = 1.3; */
 
 /* GRmin = 1.12;
 GBmin = 1.12; */
-GRmin = 1.05;
-GBmin = 1.05;
+const GRmin = 1.05;
+const GBmin = 1.05;
 
-Gmin = 60;
+const Gmin = 60;
 
 // ratioAuroraPixels: 0.1 = strong; 0.01 = weak // acutally aurora size
 // ratioAuroraIntensities: 1.30 = strong; 1.15 = medium
 
-BIG = 0.1;
+const BIG = 0.1;
 //SMALL = 0.01;
-SMALL = 0.005;
+const SMALL = 0.005;
 
-STRONG = 1.30;
-MEDIUM = 1.15;
+const STRONG = 1.30;
+const MEDIUM = 1.15;
 
 function analyse() {
     totalPixels = 0;

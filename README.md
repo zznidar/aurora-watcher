@@ -7,6 +7,15 @@ This script regularly checks the newest photo above the Tavelsjö lake, then run
 It was tuned specifically for this camera at this location. Therefore, only the upper 5/8 of the picture is analysed (rest is the window frame/not sky and is discarded). The ratio thresholds were set by manually analysing a handful of photos with and without the northern lights. 
 
 
+## Online demo
+You can test how well the detection works here: https://zznidar.github.io/aurora-watcher/
+
+It is fine-tuned for the Auroracam above the Tavelsjö lake, so input photos from there. 
+
+Red pixels represent the detected aurora. Aurora is considered visible if strength is greater than 80 %. In that case, you will see a message "Aurora visible!"
+
+
+
 ## Setting up on Home Assistant
 ### Installing plugins
 I recommend 2 plugins for this to work:
