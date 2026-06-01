@@ -35,6 +35,13 @@ function initialise(slika) {
     return({"visina": visina, "sirina": sirina, "resized": sirina != slikaWidth})
 }
 
+unitsOfMeasurement = {
+    "size3": "%",
+    "strength3": "%",
+    "auroraPixels3": "px"
+}
+
+
 /* GRmin = 1.3;
 GRmax = 1.5;
 GBmin = 1.2;
@@ -66,7 +73,7 @@ function analyse() {
             let [r, g, b, a] = getArrPixelColour(i, j);
             //console.log("Barva", r, g, b, a);
             //if(GRmin < g/r && g/r < GRmax && GBmin < g/b && g/b < GBmax) {
-            if(GRmin < g/r && GBmin < g/b && g > Gmin) {
+            if(g/r > GRmin && g/b > GBmin && g > Gmin) {
                 setPixels(i, j, 255, 0, 0, 255);
                 auroraPixels++;
                 auroraIntensities += (g/(r||1) + g/(b||1))/2;
@@ -81,30 +88,53 @@ function analyse() {
     ratioAuroraIntensitiesTotal = auroraIntensities/totalPixels;
     console.log("Aurora pixels", auroraPixels, "Total pixels", totalPixels, "Ratio aurora/total", ratioAuroraPixels, "Ratio aurora intensities", ratioAuroraIntensities, "Ratio aurora intensities total", ratioAuroraIntensitiesTotal);
 
-    let strength = calculateStrength(ratioAuroraPixels, ratioAuroraIntensities);
-    document.getElementById("outputText").innerHTML = `Aurora size: ${strength[0]}, Aurora strength: ${strength[1]}`;
+    let out = calculateStrength(ratioAuroraPixels, ratioAuroraIntensities);
+    out["auroraPixels3"] = auroraPixels;
+
+    document.getElementById("outputText").innerHTML = "";
+    for(let key in out) {
+        document.getElementById("outputText").innerHTML += `${key.replaceAll("3", "")}: ${out[key]}&nbsp;${unitsOfMeasurement?.[key] ?? ""}<br>`;
+    }
+    if(out["strength3"] > 80) {
+        document.getElementById("notificationText").innerHTML = "Aurora detected!";
+        document.getElementById("notificationText").classList.add("aurora");
+    } else {
+        document.getElementById("notificationText").innerHTML = "No aurora for you :(";
+        document.getElementById("notificationText").classList.remove("aurora");
+    }
 }
 
 function calculateStrength(ratioAuroraPixels, ratioAuroraIntensities) {
-    let size, strength;
-    if(ratioAuroraPixels < SMALL) {
-        size = "none";
-        console.log("No aurora");
-        return(["none", "none"]);
-    } else if(ratioAuroraPixels < 2*SMALL) {
-        size = "small";
-    } else {
-        size = `${(ratioAuroraPixels/(BIG)*100).toFixed(2)} % big`;
+
+    let out = {
+        "sizeType3": "none",
+        "strengthType3": "none",
+        "size3": 0,
+        "strength3": 0
     }
+
+    if(ratioAuroraPixels < SMALL) {
+        out["sizeType3"] = "none";
+        console.log("No aurora");
+        return(out);
+    } else if(ratioAuroraPixels < 2*SMALL) {
+        out["sizeType3"] = "small";
+    } else {
+        out["sizeType3"] = "big";
+    }
+
+    out["size3"] = (ratioAuroraPixels/(BIG)*100).toFixed(2) // in percent
 
     if(ratioAuroraIntensities < MEDIUM) {
-        strength = "weak";
+        out["strengthType3"] = "weak";
     } else {
-        strength = `${(ratioAuroraIntensities/(STRONG)*100).toFixed(2)} % strong`;
+        out["strengthType3"] = "strong";
     }
 
-    console.log(size, strength);
-    return([size, strength]);
+    out["strength3"] = (ratioAuroraIntensities/STRONG*100).toFixed(2) // in percent
+
+    console.log(out);
+    return(out);
 
 }
 

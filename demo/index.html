@@ -5,9 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Žan Žnidar">
-    <title>Aurora watcher</title>
+    <title>Aurora Watcher</title>
     <meta name="description" content="Detects aurora on picture">
-
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="header">    
@@ -18,15 +18,19 @@
     <label for="input">Pick your night sky pic: </label>
     <input type="file" id="input" name="input" accept="image/*"/>
     <br>
-    <canvas id="canvas" width="1080" height="1080" style="max-height: calc(100vh - 16px);max-width: calc(100vw - 16px);"></canvas>
+    <p id="notificationText"></p>
+    <canvas id="canvas" width="1080" height="1080"></canvas>
 
     <div>
         <p id="outputText"></p>
     </div>
 
+    <h2>What is this?</h2>
+    <p>This is an online demo of the Aurora Watcher tool. In real life, you would install the Python script onto Home Assistant or your computer. It would then constantly monitor the webcam of the night sky, and in case of aurora, it would notify you by e-mail or some other channel.</p>
+
     
 
-    <footer style="color: gray; padding-bottom: 1.5rem;">
+    <footer>
         <p>Author: Žan&nbsp;Žnidar, ©&nbsp;2024&ndash;2026<br>
             Source code is available on <a href="https://github.com/zznidar/aurora-watcher">GitHub</a></p>
     </footer>
