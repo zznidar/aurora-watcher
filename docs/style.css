@@ -1,0 +1,42 @@
+body {
+    text-align: center;
+}
+
+h1 {
+    /*! border: 4px solid #b5e3db; */
+    background-color:rgb(200, 200, 239);
+    color: rgb(1, 66, 1);
+    margin-bottom: 1rem;
+}
+
+.header {
+    background-color: rgb(234, 234, 252);
+}
+
+#notificationText {
+    color: #666;
+    padding: 1rem;
+    &.aurora {
+        color: darkgreen;
+        border: 1rem solid darkblue;
+        border-radius: 1rem;
+        font-weight: bold;
+    }
+}
+
+#canvas {
+    max-height: calc(80vh - 16px);
+    max-width: calc(100vw - 16px);
+}
+
+h2 {
+    margin-bottom: 0.1rem;
+}
+h2 + p {
+    margin-top: 0.1rem;
+}
+
+footer {
+    color: gray; 
+    padding-bottom: 1.5rem;
+}
